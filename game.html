@@ -7,103 +7,150 @@
 </head>
 <body>
 <script>
+
+
     $(document).ready(function () {
 
-        $.get("http://192.168.1.110:8080/webquest/getfacilities", function (data) {
-console.log("data " ,data);
-            var facilityopts = "";
-            for (var i=0; i<data.length; i++){
+        /* Qd clica Btn SUBMIT */
+        $("#send").click(function () {
 
-                facilityopts=facilityopts+'<option value="'+data[i].Id+'">'+data[i].Name+'</option>'
+            $('#email').css({"border": "1px solid gray"});
+            $('#name').css({"border": "1px solid gray"});
+            $('#tlf').css({"border": "1px solid gray"});
+
+            var erros = 0;
+
+            /* validar email */
+            function isInvalidaEmail(email) {
+                var email = $('#email').val();
+                var atpos = email.indexOf("@");
+                var dotpos = email.lastIndexOf(".");
+                return (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email.length)
             }
 
-            $('#answer1').html(facilityopts);
+            /* se houver erros */
+            if ((($('#email').val() == "")) || (isInvalidaEmail($('#email').val()))) {
+                $('#email').css({"border": "2px solid red"});
+                erros=1;
+            }
 
+            if (($('#tlf').val() == "")) {
+                $('#tlf').css({"border": "2px solid red"});
+                erros=1;
+            }
+
+            if (($('#name').val() == "")) {
+                $('#name').css({"border": "2px solid red"});
+                erros=1;
+            }
+
+            /* SE NAO HOUVER ERROS*/
+            if (erros==0){
+
+                var email = $('#email').val();
+                var name = $('#name').val();
+                var tlf = $('#tlf').val();
+                var answer1 = $('#answer1').val();
+                var answer2 = $('#answer2').val();
+
+                alert(answer1);
+                alert(answer2);
+
+            }
+        });
+
+        /* imprime as opções possiveis para a ANSWER 1*/
+        $.get("http://192.168.1.110:8080/webquest/getfacilities", function (data) {
+            console.log("data ", data);
+            var facilityopts = "";
+            for (var i = 0; i < data.length; i++) {
+                facilityopts = facilityopts + '<option value="' + data[i].Id + '">' + data[i].Name + '</option>'
+            }
+            $('#answer1').html(facilityopts);
 
         });
 
-
+        /* imprime as opções possiveis para a ANSWER 2*/
         $.get("http://192.168.1.110:8080/webquest", function (data) {
             $("#question1").html(data.Question1);
             $("#question2").html(data.Question2);
             $("#prizes").html(data.Prizes);
             $("#rules").html(data.Rules);
-
-var daysopts = "";
-            for (var i=1; i<=31; i++){
-                daysopts=daysopts+'<option value="'+i+'">'+i+'</option>'
+            var daysopts = "";
+            for (var i = 1; i <= 31; i++) {
+                daysopts = daysopts + '<option value="' + i + '">' + i + '</option>'
             }
-
-                $('#answer2').html(daysopts);
-
-           /* for (var z=1; z<=31; z++){
-                $(".answer2 option").text(z);
-
-            }*/
-
+            $('#answer2').html(daysopts);
         });
-
-
     });
 </script>
 
 <style>
-    #main-wrp{
-        width: 100%;
-        margin: 0 auto;
+    #main-wrp p {
+        margin: 0;
     }
 
-    #prizes {
-        background-color: yellow;
+    .tbl th {
+        width: 200px;
+        text-align: left;
     }
-
-    #rules {
-        background-color: yellowgreen;
-    }
-
-    #answer1, #question1 {
-        background-color: lightcoral;
-    }
-
-    #answer2, #question2 {
-        background-color: deeppink;
-    }
-
 </style>
 
 <div id="main-wrp">
 
-    <div id="question1"></div>
-    <p>Facility</p>
-    <select id="answer1">
-        <option></option>
-    </select>
-
-    <div id="question2"></div>
-
-    <p>Day of the month</p>
-
-    <select id="answer2">
-    </select>
-
-    <div id="rules"></div>
-
     <div id="prizes"></div>
 
-    <label> Name </label>
-    <input type="text">
+    <div id="question1"></div>
 
-    <label> Email </label>
-    <input type="email">
+    <table class="tbl">
+        <tbody>
+        <tr>
+            <th>Facility</th>
+            <td><select id="answer1"> </select></td>
+        </tr>
+        </tbody>
+    </table>
+    <div id="question2"></div>
 
-    <label> Telephone </label>
-    <input type="text">
+    <table class="tbl">
+        <tbody>
+        <tr>
+            <th>Day of the month</th>
+            <td>
+                <select id="answer2">
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 
-    <button type="reset"> Clean</button>
-    <button type="submit"> Send </button>
-
+    <div id="rules"></div>
+    <form>
+        <table class="tbl">
+            <tbody>
+            <tr>
+                <th> Name</th>
+                <td><input type="text" required id="name"></td>
+            </tr>
+            <tr>
+                <th> Email</th>
+                <td><input type="email" required id="email"></td>
+            </tr>
+            <tr>
+                <th> Telephone</th>
+                <td><input type="text" required id="tlf"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="reset"> Clean</button>
+                    <button type="submit" id="send"> Send</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
 </div>
-
 
 </body>
 </html>
