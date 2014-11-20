@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+<script>
+    $(document).ready(function () {
+
+        $.get("http://192.168.1.110:8080/webquest/getfacilities", function (data) {
+console.log("data " ,data);
+            var facilityopts = "";
+            for (var i=0; i<data.length; i++){
+
+                facilityopts=facilityopts+'<option value="'+data[i].Id+'">'+data[i].Name+'</option>'
+            }
+
+            $('#answer1').html(facilityopts);
+
+
+        });
+
+
+        $.get("http://192.168.1.110:8080/webquest", function (data) {
+            $("#question1").html(data.Question1);
+            $("#question2").html(data.Question2);
+            $("#prizes").html(data.Prizes);
+            $("#rules").html(data.Rules);
+
+var daysopts = "";
+            for (var i=1; i<=31; i++){
+                daysopts=daysopts+'<option value="'+i+'">'+i+'</option>'
+            }
+
+                $('#answer2').html(daysopts);
+
+           /* for (var z=1; z<=31; z++){
+                $(".answer2 option").text(z);
+
+            }*/
+
+        });
+
+
+    });
+</script>
+
+<style>
+    #main-wrp{
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    #prizes {
+        background-color: yellow;
+    }
+
+    #rules {
+        background-color: yellowgreen;
+    }
+
+    #answer1, #question1 {
+        background-color: lightcoral;
+    }
+
+    #answer2, #question2 {
+        background-color: deeppink;
+    }
+
+</style>
+
+<div id="main-wrp">
+
+    <div id="question1"></div>
+    <p>Facility</p>
+    <select id="answer1">
+        <option></option>
+    </select>
+
+    <div id="question2"></div>
+
+    <p>Day of the month</p>
+
+    <select id="answer2">
+    </select>
+
+    <div id="rules"></div>
+
+    <div id="prizes"></div>
+
+    <label> Name </label>
+    <input type="text">
+
+    <label> Email </label>
+    <input type="email">
+
+    <label> Telephone </label>
+    <input type="text">
+
+    <button type="reset"> Clean</button>
+    <button type="submit"> Send </button>
+
+</div>
+
+
+</body>
+</html>
