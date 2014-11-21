@@ -8,15 +8,14 @@
 <body>
 <script>
 
-
     $(document).ready(function () {
 
-        /* Qd clica Btn SUBMIT */
-        $("#send").click(function () {
+        /* Qd clica SUBMIT */
+        $("#searchForm").submit(function (event) {
 
             $('#email').css({"border": "1px solid gray"});
             $('#name').css({"border": "1px solid gray"});
-            $('#tlf').css({"border": "1px solid gray"});
+            $('#phone').css({"border": "1px solid gray"});
 
             var erros = 0;
 
@@ -28,39 +27,63 @@
                 return (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email.length)
             }
 
-            /* se houver erros */
+            /* if ERRORS */
             if ((($('#email').val() == "")) || (isInvalidaEmail($('#email').val()))) {
                 $('#email').css({"border": "2px solid red"});
-                erros=1;
+                erros = 1;
             }
 
-            if (($('#tlf').val() == "")) {
-                $('#tlf').css({"border": "2px solid red"});
-                erros=1;
+            if (($('#phone').val() == "")) {
+                $('#phone').css({"border": "2px solid red"});
+                erros = 1;
             }
 
             if (($('#name').val() == "")) {
                 $('#name').css({"border": "2px solid red"});
-                erros=1;
+                erros = 1;
             }
 
-            /* SE NAO HOUVER ERROS*/
-            if (erros==0){
+            /* if SUCCESS */
+            if (erros == 0) {
 
+                // Get values from elements
                 var email = $('#email').val();
                 var name = $('#name').val();
-                var tlf = $('#tlf').val();
-                var answer1 = $('#answer1').val();
-                var answer2 = $('#answer2').val();
+                var phone = $('#phone').val();
+                var firsts_question_answer = Number($('#answer1').val());
+                var second_question_answer = Number($('#answer2').val());
 
-                alert(answer1);
-                alert(answer2);
+                // Stop form from submitting normally
+                event.preventDefault();
 
+                var data = {
+                    Email: email,
+                    Name: name,
+                    Phone: phone,
+                    FirstsQuestionAnswer: firsts_question_answer,
+                    SecondQuestionAnswer: second_question_answer
+                };
+
+                // Send the data using post
+                $.ajax({
+                    type: "POST",
+                    url: "http://lajesfss.com/webquest/play",
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        showMessage('#9BED87', 'black', 'Thank you for playing!');
+                    },
+                    failure: function (errMsg) {
+                        showMessage('red', 'black', 'There is an error!');
+                    }
+                });
             }
         });
 
-        /* imprime as opções possiveis para a ANSWER 1*/
-        $.get("http://192.168.1.110:8080/webquest/getfacilities", function (data) {
+        /* print possible answers for ANSWER 1*/
+        $.get("http://lajesfss.com/webquest/getfacilities", function (data) {
             console.log("data ", data);
             var facilityopts = "";
             for (var i = 0; i < data.length; i++) {
@@ -70,8 +93,8 @@
 
         });
 
-        /* imprime as opções possiveis para a ANSWER 2*/
-        $.get("http://192.168.1.110:8080/webquest", function (data) {
+        /* print possible answers for ANSWER 2*/
+        $.get("http://lajesfss.com/webquest/", function (data) {
             $("#question1").html(data.Question1);
             $("#question2").html(data.Question2);
             $("#prizes").html(data.Prizes);
@@ -83,9 +106,55 @@
             $('#answer2').html(daysopts);
         });
     });
+
+    /*Shows fancy message on top of the window - if error: red || if success: green */
+    var interval = null;
+    function showMessage(bgcolor, color, msg)
+    {
+        $('#smsg').remove();
+        clearInterval(interval);
+
+        if (!$('#smsg').is(':visible'))
+        {
+            if (!$('#smsg').length)
+            {
+                $('<div id="smsg">'+msg+'</div>').appendTo($('body')).css({
+                    position:'fixed',
+                    top:0,
+                    left:0,
+                    width:'98%',
+                    height:'30px',
+                    lineHeight:'30px',
+                    background:bgcolor,
+                    color:color,
+                    zIndex:1000,
+                    padding:'10px',
+                    fontWeight:'bold',
+                    fontSize:'18px',
+                    textAlign:'center',
+                    opacity:0.8,
+                    margin:'auto',
+                    display:'none'
+                }).slideDown('show');
+
+                interval = setTimeout(function(){
+                    $('#smsg').animate({'width':'hide'}, function(){
+                        $('#smsg').remove();
+                    });
+                }, 3000);
+            }
+        }
+    }
 </script>
 
 <style>
+
+    #main-wrp {
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
     #main-wrp p {
         margin: 0;
     }
@@ -94,15 +163,20 @@
         width: 200px;
         text-align: left;
     }
+
+    .person-info td {
+        padding: 3px 0;
+    }
+
 </style>
 
 <div id="main-wrp">
 
-    <div id="prizes"></div>
+    <div id="prizes"></div> <!-- PRIZES -->
 
-    <div id="question1"></div>
+    <div id="question1"></div> <!-- QUESTION 1 -->
 
-    <table class="tbl">
+    <table class="tbl"> <!-- ANSWER 1 -->
         <tbody>
         <tr>
             <th>Facility</th>
@@ -110,9 +184,10 @@
         </tr>
         </tbody>
     </table>
-    <div id="question2"></div>
 
-    <table class="tbl">
+    <div id="question2"></div> <!-- QUESTION 2 -->
+
+    <table class="tbl"> <!-- ANSWER 2 -->
         <tbody>
         <tr>
             <th>Day of the month</th>
@@ -124,9 +199,10 @@
         </tbody>
     </table>
 
-    <div id="rules"></div>
-    <form>
-        <table class="tbl">
+    <div id="rules"></div> <!-- RULES -->
+
+    <form action="/" id="searchForm"> <!-- PERSONAL INFO FORM -->
+        <table class="tbl person-info">
             <tbody>
             <tr>
                 <th> Name</th>
@@ -138,7 +214,7 @@
             </tr>
             <tr>
                 <th> Telephone</th>
-                <td><input type="text" required id="tlf"></td>
+                <td><input type="text" required id="phone"></td>
             </tr>
             <tr>
                 <td></td>
